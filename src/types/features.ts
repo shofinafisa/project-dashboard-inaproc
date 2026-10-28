@@ -1,3 +1,6 @@
+import { CascadingFilterState } from "@/lib/cascading-filter-data";
+import { Transaction } from "./dashboard";
+
 export type FeatureKey =
   | "penunjukan_langsung"
   | "pengadaan_langsung"
@@ -41,4 +44,14 @@ export interface FeatureContextType {
   setYearRange: (range: YearRange) => void;
   minYear: number;
   maxYear: number;
+  cascadingFilter: CascadingFilterState;
+  setCascadingFilter: (filter: CascadingFilterState) => void;
+  resetCascadingFilter: () => void;
+  filteredTransactions: Transaction[];
+  filteredStats: {
+    totalAmount: number;
+    totalPackages: number;
+    avgAmount: number;
+    efficiencyRatio: string;
+  };
 }

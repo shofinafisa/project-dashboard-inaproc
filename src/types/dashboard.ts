@@ -44,6 +44,10 @@ export interface Transaction {
   status: TransactionStatus;
   date: string;
   paymentMethod: string;
+  jenisInstansi?: string;
+  instansi?: string;
+  eselon?: string;
+  satker?: string;
 }
 
 export type DateRangeOption = "today" | "7d" | "30d" | "90d" | "ytd" | "all";

@@ -1,8 +1,20 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+  useMemo,
+} from "react";
 import { FeatureKey, FeatureFlags, FeatureContextType, YearRange } from "@/types/features";
-import { FEATURE_CONFIGS } from "@/lib/mock-data";
+import { FEATURE_CONFIGS, calculateDynamicStats } from "@/lib/mock-data";
+import {
+  CascadingFilterState,
+  INITIAL_CASCADING_FILTER,
+} from "@/lib/cascading-filter-data";
 
 const FEATURE_STORAGE_KEY = "inaproc_procurement_methods_v2";
 const YEAR_STORAGE_KEY = "inaproc_year_range_v1";
@@ -21,6 +33,10 @@ const FeatureContext = createContext<FeatureContextType | undefined>(undefined);
 export function FeatureProvider({ children }: { children: ReactNode }) {
   const [features, setFeatures] = useState<FeatureFlags>(DEFAULT_FLAGS);
   const [yearRange, setYearRangeState] = useState<YearRange>(DEFAULT_YEAR_RANGE);
+  const [cascadingFilter, setCascadingFilterState] = useState<CascadingFilterState>({
+    ...INITIAL_CASCADING_FILTER,
+    yearRange: DEFAULT_YEAR_RANGE,
+  });
 
   // Load from localStorage on mount & safely validate
   useEffect(() => {
@@ -51,10 +67,12 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
           typeof parsedYears[1] === "number" &&
           parsedYears[0] <= parsedYears[1]
         ) {
-          setYearRangeState([
+          const clamped: YearRange = [
             Math.max(MIN_YEAR, parsedYears[0]),
             Math.min(MAX_YEAR, parsedYears[1]),
-          ]);
+          ];
+          setYearRangeState(clamped);
+          setCascadingFilterState((prev) => ({ ...prev, yearRange: clamped }));
         }
       }
     } catch (e) {
@@ -79,7 +97,9 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
         try {
           const parsed = JSON.parse(e.newValue);
           if (Array.isArray(parsed) && parsed.length === 2) {
-            setYearRangeState([parsed[0], parsed[1]]);
+            const clamped: YearRange = [parsed[0], parsed[1]];
+            setYearRangeState(clamped);
+            setCascadingFilterState((prev) => ({ ...prev, yearRange: clamped }));
           }
         } catch (err) {
           console.error("Failed to sync year storage change", err);
@@ -98,10 +118,46 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
     const validEnd = Math.min(MAX_YEAR, Math.max(newRange[0], newRange[1]));
     const clamped: YearRange = [validStart, validEnd];
     setYearRangeState(clamped);
+    setCascadingFilterState((prev) => ({ ...prev, yearRange: clamped }));
     try {
       localStorage.setItem(YEAR_STORAGE_KEY, JSON.stringify(clamped));
     } catch (e) {
       console.error("Failed to persist year range", e);
+    }
+  }, []);
+
+  const setCascadingFilter = useCallback(
+    (next: CascadingFilterState) => {
+      setCascadingFilterState(next);
+      if (
+        next.yearRange &&
+        (next.yearRange[0] !== yearRange[0] || next.yearRange[1] !== yearRange[1])
+      ) {
+        setYearRangeState(next.yearRange);
+        try {
+          localStorage.setItem(YEAR_STORAGE_KEY, JSON.stringify(next.yearRange));
+        } catch (e) {
+          console.error("Failed to persist year range", e);
+        }
+      }
+    },
+    [yearRange]
+  );
+
+  const resetCascadingFilter = useCallback(() => {
+    const resetState: CascadingFilterState = {
+      yearRange: DEFAULT_YEAR_RANGE,
+      jenisInstansi: [],
+      instansi: [],
+      eselon: [],
+      satker: [],
+    };
+    setCascadingFilterState(resetState);
+    setYearRangeState(DEFAULT_YEAR_RANGE);
+    try {
+      localStorage.setItem(YEAR_STORAGE_KEY, JSON.stringify(DEFAULT_YEAR_RANGE));
+    } catch (e) {
+      console.error("Failed to save default year range", e);
     }
   }, []);
 
@@ -164,17 +220,17 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
 
   const resetToDefaults = useCallback(() => {
     setFeatures(DEFAULT_FLAGS);
-    setYearRangeState(DEFAULT_YEAR_RANGE);
+    resetCascadingFilter();
     try {
       localStorage.setItem(FEATURE_STORAGE_KEY, JSON.stringify(DEFAULT_FLAGS));
-      localStorage.setItem(YEAR_STORAGE_KEY, JSON.stringify(DEFAULT_YEAR_RANGE));
     } catch (e) {
       console.error("Failed to save defaults to storage", e);
     }
-  }, []);
+  }, [resetCascadingFilter]);
 
-  const activeMethods = (Object.keys(features) as FeatureKey[]).filter(
-    (k) => Boolean(features[k])
+  const activeMethods = useMemo(
+    () => (Object.keys(features) as FeatureKey[]).filter((k) => Boolean(features[k])),
+    [features]
   );
   const activeCount = activeMethods.length;
   const totalCount = Object.keys(DEFAULT_FLAGS).length;
@@ -184,6 +240,27 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
       return Boolean(features[key]);
     },
     [features]
+  );
+
+  // Core Real-Time Filter Engine: calculates filteredTransactions and stats
+  const { filteredTransactions, totalAmount, totalPackages, avgAmount, efficiencyRatio } =
+    useMemo(() => {
+      return calculateDynamicStats(activeMethods, yearRange, {
+        jenisInstansi: cascadingFilter.jenisInstansi,
+        instansi: cascadingFilter.instansi,
+        eselon: cascadingFilter.eselon,
+        satker: cascadingFilter.satker,
+      });
+    }, [activeMethods, yearRange, cascadingFilter]);
+
+  const filteredStats = useMemo(
+    () => ({
+      totalAmount,
+      totalPackages,
+      avgAmount,
+      efficiencyRatio,
+    }),
+    [totalAmount, totalPackages, avgAmount, efficiencyRatio]
   );
 
   return (
@@ -203,6 +280,11 @@ export function FeatureProvider({ children }: { children: ReactNode }) {
         setYearRange,
         minYear: MIN_YEAR,
         maxYear: MAX_YEAR,
+        cascadingFilter,
+        setCascadingFilter,
+        resetCascadingFilter,
+        filteredTransactions,
+        filteredStats,
       }}
     >
       {children}

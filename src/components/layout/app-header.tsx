@@ -14,7 +14,7 @@ import {
   UserCheck,
   LogOut,
   ArrowRightLeft,
-  LayoutDashboard,
+
   Sliders,
 } from "lucide-react";
 

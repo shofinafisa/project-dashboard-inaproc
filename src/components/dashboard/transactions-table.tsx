@@ -12,10 +12,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { MOCK_TRANSACTIONS, FEATURE_CONFIGS } from "@/lib/mock-data";
+import { MOCK_TRANSACTIONS } from "@/lib/mock-data";
 import { useFeatures } from "@/context/feature-context";
 import { formatCurrency, formatShortCurrency } from "@/lib/utils";
-import { TransactionStatus, Transaction } from "@/types/dashboard";
+import { TransactionStatus } from "@/types/dashboard";
 import { FeatureKey } from "@/types/features";
 import {
   Search,
@@ -27,7 +27,6 @@ import {
   AlertCircle,
   XCircle,
   FileText,
-  Filter,
 } from "lucide-react";
 
 interface TransactionsTableProps {
@@ -35,24 +34,18 @@ interface TransactionsTableProps {
 }
 
 export function TransactionsTable({ bypassFilters = false }: TransactionsTableProps) {
-  const { isFeatureEnabled, activeCount, totalCount, yearRange } = useFeatures();
+  const { yearRange, filteredTransactions: contextTransactions } = useFeatures();
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [selectedMethod, setSelectedMethod] = useState<string>("all");
+  const [selectedMethod] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Filter transactions by active procurement methods and year range (from Feature Context)
+  // Uses globally filtered transactions from Feature Context
   const availableTransactions = useMemo(() => {
     if (bypassFilters) return MOCK_TRANSACTIONS;
-    const [minY, maxY] = yearRange;
-    return MOCK_TRANSACTIONS.filter((tx) => {
-      const methodOk = isFeatureEnabled(tx.procurementMethod);
-      const txYear = parseInt(tx.date.substring(0, 4), 10);
-      const yearOk = txYear >= minY && txYear <= maxY;
-      return methodOk && yearOk;
-    });
-  }, [isFeatureEnabled, yearRange, bypassFilters]);
+    return contextTransactions;
+  }, [contextTransactions, bypassFilters]);
 
   const filteredTransactions = useMemo(() => {
     return availableTransactions.filter((item) => {
@@ -61,7 +54,8 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
         item.invoiceNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.product.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.category.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.methodLabel.toLowerCase().includes(searchTerm.toLowerCase());
+        item.methodLabel.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        (item.satker && item.satker.toLowerCase().includes(searchTerm.toLowerCase()));
 
       const matchStatus =
         statusFilter === "all" ? true : item.status === statusFilter;
@@ -137,19 +131,19 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
   };
 
   return (
-    <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm">
+    <Card className="border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 shadow-sm rounded-2xl">
       <CardHeader className="p-6 pb-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+            <div className="p-2 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Receipt className="w-5 h-5" />
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                Daftar Paket Pengadaan Barang & Jasa (INAPROC)
+                Daftar Paket Pengadaan Barang &amp; Jasa (INAPROC)
               </CardTitle>
               <CardDescription className="text-xs text-slate-500">
-                Menampilkan paket tahun {yearRange[0]} — {yearRange[1]} ({filteredTransactions.length} dari {MOCK_TRANSACTIONS.length} total paket)
+                Tahun {yearRange[0]}—{yearRange[1]} ({filteredTransactions.length} dari {MOCK_TRANSACTIONS.length} paket cocok filter)
               </CardDescription>
             </div>
           </div>
@@ -278,8 +272,8 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
                       </p>
                       <p className="text-xs text-slate-400 max-w-sm">
                         {availableTransactions.length === 0
-                          ? "Semua metode pengadaan sedang dinonaktifkan oleh Administrator. Aktifkan minimal satu metode pengadaan di Admin Console."
-                          : "Tidak ada paket yang sesuai dengan filter pencarian Anda."}
+                          ? "Tidak ada paket yang sesuai dengan kombinasi filter yang dipilih."
+                          : "Tidak ada paket yang sesuai dengan kata kunci pencarian Anda."}
                       </p>
                     </div>
                   </td>

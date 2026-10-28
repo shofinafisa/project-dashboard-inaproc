@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useFeatures } from "@/context/feature-context";
 import { useToast } from "@/components/ui/toast";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CalendarRange, ChevronDown, RotateCcw, Check, Sparkles } from "lucide-react";
+import { CalendarRange, ChevronDown, RotateCcw, Check } from "lucide-react";
 
 export function DateFilter() {
   const { yearRange, setYearRange, minYear, maxYear } = useFeatures();
