@@ -50,28 +50,28 @@ export function AppHeader() {
       {/* Brand & Breadcrumb */}
       <div className="flex items-center gap-3">
         <Link href={role === "admin" ? "/admin" : "/dashboard"} className="flex items-center gap-2.5">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20">
-            <LayoutDashboard className="h-5 w-5" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white shadow-md shadow-blue-500/20 font-bold text-xs tracking-wider">
+            LKPP
           </div>
           <div>
             <div className="flex items-center gap-1.5">
               <span className="text-sm font-bold tracking-tight text-slate-900 dark:text-slate-100">
-                DataPulse
+                INAPROC
               </span>
               <span className="text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400">
-                Enterprise
+                Nasional
               </span>
             </div>
-            <p className="text-[10px] text-slate-400 -mt-0.5">Unified Intelligence Platform</p>
+            <p className="text-[10px] text-slate-400 -mt-0.5">Sistem Pengadaan Secara Elektronik</p>
           </div>
         </Link>
 
         {/* Feature status badge */}
         <div className="hidden md:flex items-center pl-4 border-l border-slate-200 dark:border-slate-800 text-xs text-slate-500">
           <Sliders className="w-3.5 h-3.5 mr-1.5 text-blue-500" />
-          <span>Feature Flags:</span>
+          <span>Metode Aktif:</span>
           <span className="ml-1 font-semibold text-slate-700 dark:text-slate-300">
-            {activeCount}/{totalCount} Modul
+            {activeCount}/{totalCount} Metode
           </span>
         </div>
       </div>
@@ -97,19 +97,19 @@ export function AppHeader() {
           </Badge>
         )}
 
-        {/* Quick Role Switcher Button for Testing convenience */}
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={handleQuickSwitch}
-          className="h-8 px-2.5 text-xs gap-1.5 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
-          title={`Beralih akun ke ${role === "admin" ? "User" : "Admin"}`}
-        >
-          <ArrowRightLeft className="w-3.5 h-3.5 text-slate-500" />
-          <span className="hidden sm:inline">
-            {role === "admin" ? "Switch ke User" : "Switch ke Admin"}
-          </span>
-        </Button>
+        {/* Quick Role Switcher Button - Only for Admin */}
+        {role === "admin" && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleQuickSwitch}
+            className="h-8 px-2.5 text-xs gap-1.5 border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800"
+            title="Lihat tampilan sebagai User"
+          >
+            <ArrowRightLeft className="w-3.5 h-3.5 text-slate-500" />
+            <span className="hidden sm:inline">Mode Simulasi User</span>
+          </Button>
+        )}
 
         {/* User Profile Capsule */}
         {user && (

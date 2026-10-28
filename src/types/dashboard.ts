@@ -1,3 +1,5 @@
+import { FeatureKey } from "./features";
+
 export interface KPICardData {
   id: string;
   title: string;
@@ -14,9 +16,11 @@ export interface SalesMonthlyData {
   revenue: number;
   orders: number;
   growth: number;
+  methodBreakdown?: Partial<Record<FeatureKey, number>>;
 }
 
 export interface CategoryData {
+  key: FeatureKey;
   name: string;
   value: number;
   orders: number;
@@ -34,6 +38,8 @@ export interface Transaction {
   customerAvatar: string;
   product: string;
   category: string;
+  procurementMethod: FeatureKey;
+  methodLabel: string;
   amount: number;
   status: TransactionStatus;
   date: string;

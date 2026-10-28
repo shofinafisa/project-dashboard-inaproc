@@ -1,21 +1,30 @@
 export type FeatureKey =
-  | "kpi_cards"
-  | "sales_chart"
-  | "category_distribution"
-  | "recent_transactions"
-  | "export_buttons"
-  | "date_range_filter";
+  | "penunjukan_langsung"
+  | "pengadaan_langsung"
+  | "e_purchasing"
+  | "swakelola"
+  | "sayembara"
+  | "kontes"
+  | "tender"
+  | "tender_cepat"
+  | "tender_internasional"
+  | "pengadaan_darurat"
+  | "seleksi"
+  | "dikecualikan";
 
 export interface FeatureMetadata {
   key: FeatureKey;
   label: string;
   description: string;
-  category: "analytics" | "visualization" | "data" | "controls";
+  category: "Pemilihan Langsung" | "Tender & Kompetisi" | "E-Katalog" | "Khusus & Swakelola";
   iconName: string;
+  badgeColor?: string;
   defaultEnabled: boolean;
 }
 
 export type FeatureFlags = Record<FeatureKey, boolean>;
+
+export type YearRange = [number, number];
 
 export interface FeatureContextType {
   features: FeatureFlags;
@@ -27,4 +36,9 @@ export interface FeatureContextType {
   resetToDefaults: () => void;
   activeCount: number;
   totalCount: number;
+  activeMethods: FeatureKey[];
+  yearRange: YearRange;
+  setYearRange: (range: YearRange) => void;
+  minYear: number;
+  maxYear: number;
 }

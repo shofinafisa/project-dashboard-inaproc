@@ -17,36 +17,61 @@ import {
   CheckCheck,
   Ban,
   Eye,
-  LayoutGrid,
-  TrendingUp,
-  PieChart,
-  TableProperties,
-  DownloadCloud,
-  CalendarRange,
+  UserCheck,
+  FileCheck2,
+  ShoppingCart,
+  Building2,
+  Award,
+  Trophy,
+  Gavel,
   Zap,
+  Globe,
+  AlertTriangle,
+  SearchCode,
+  ShieldAlert,
+  Sparkles,
 } from "lucide-react";
 
 export function FeatureManagementPanel() {
-  const { features, toggleFeature, enableAll, disableAll, resetToDefaults, activeCount, totalCount } =
-    useFeatures();
+  const {
+    features,
+    toggleFeature,
+    enableAll,
+    disableAll,
+    resetToDefaults,
+    activeCount,
+    totalCount,
+  } = useFeatures();
   const { switchRole } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
 
-  const getModuleIcon = (iconName: string) => {
+  const getMethodIcon = (iconName: string) => {
     switch (iconName) {
-      case "LayoutGrid":
-        return <LayoutGrid className="w-5 h-5 text-blue-500" />;
-      case "TrendingUp":
-        return <TrendingUp className="w-5 h-5 text-emerald-500" />;
-      case "PieChart":
-        return <PieChart className="w-5 h-5 text-purple-500" />;
-      case "TableProperties":
-        return <TableProperties className="w-5 h-5 text-indigo-500" />;
-      case "DownloadCloud":
-        return <DownloadCloud className="w-5 h-5 text-amber-500" />;
-      case "CalendarRange":
-        return <CalendarRange className="w-5 h-5 text-cyan-500" />;
+      case "UserCheck":
+        return <UserCheck className="w-5 h-5 text-blue-500" />;
+      case "FileCheck2":
+        return <FileCheck2 className="w-5 h-5 text-indigo-500" />;
+      case "ShoppingCart":
+        return <ShoppingCart className="w-5 h-5 text-emerald-500" />;
+      case "Building2":
+        return <Building2 className="w-5 h-5 text-teal-500" />;
+      case "Award":
+        return <Award className="w-5 h-5 text-amber-500" />;
+      case "Trophy":
+        return <Trophy className="w-5 h-5 text-orange-500" />;
+      case "Gavel":
+        return <Gavel className="w-5 h-5 text-violet-500" />;
+      case "Zap":
+        return <Zap className="w-5 h-5 text-cyan-500" />;
+      case "Globe":
+        return <Globe className="w-5 h-5 text-sky-500" />;
+      case "AlertTriangle":
+        return <AlertTriangle className="w-5 h-5 text-rose-500" />;
+      case "SearchCode":
+        return <SearchCode className="w-5 h-5 text-purple-500" />;
+      case "ShieldAlert":
+        return <ShieldAlert className="w-5 h-5 text-slate-500" />;
       default:
         return <Sliders className="w-5 h-5 text-blue-500" />;
     }
@@ -54,12 +79,13 @@ export function FeatureManagementPanel() {
 
   const handleToggle = (key: FeatureKey, currentStatus: boolean, label: string) => {
     toggleFeature(key);
+    const nextStatus = !currentStatus;
     toast({
-      title: !currentStatus ? `Modul "${label}" Diaktifkan` : `Modul "${label}" Dinonaktifkan`,
-      description: !currentStatus
-        ? "Widget ini sekarang akan tampil pada dashboard User."
-        : "Widget ini disembunyikan dari tampilan dashboard User.",
-      type: !currentStatus ? "success" : "info",
+      title: nextStatus ? `Metode "${label}" Diaktifkan (ON)` : `Metode "${label}" Dinonaktifkan (OFF)`,
+      description: nextStatus
+        ? "Paket & analitik metode ini sekarang ditampilkan pada dashboard User."
+        : "Paket & analitik metode ini disembunyikan dari dashboard User.",
+      type: nextStatus ? "success" : "info",
     });
   };
 
@@ -67,7 +93,7 @@ export function FeatureManagementPanel() {
     switchRole("user");
     toast({
       title: "Mode Simulasi User Aktif",
-      description: "Beralih ke akun Sarah Jenkins (User). Membuka dashboard sesuai konfigurasi saat ini...",
+      description: "Beralih ke akun PPK Satker (User). Membuka dashboard sesuai konfigurasi metode yang aktif...",
       type: "info",
     });
     router.push("/dashboard");
@@ -76,21 +102,24 @@ export function FeatureManagementPanel() {
   return (
     <Card className="border-blue-500/30 bg-gradient-to-b from-white to-blue-50/20 dark:from-slate-900 dark:to-blue-950/20 shadow-md">
       <CardHeader className="p-6 pb-4 border-b border-slate-100 dark:border-slate-800">
-        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <div className="p-2 rounded-lg bg-blue-600 text-white shadow-sm">
                 <Sliders className="w-5 h-5" />
               </div>
               <CardTitle className="text-lg font-bold text-slate-900 dark:text-slate-100">
-                Pengaturan Tampilan & Feature Management
+                Pengaturan Visibilitas Metode Pengadaan INAPROC
               </CardTitle>
-              <Badge variant="default" className="ml-2 font-mono text-xs">
-                {activeCount} / {totalCount} Aktif
+              <Badge
+                variant={activeCount > 0 ? "default" : "destructive"}
+                className="ml-1 font-mono text-xs px-2.5 py-0.5"
+              >
+                {activeCount} / {totalCount} Metode Aktif
               </Badge>
             </div>
-            <CardDescription className="text-xs">
-              Kendali visibilitas terpusat untuk mengaktifkan atau menyembunyikan modul pada akun User secara real-time.
+            <CardDescription className="text-xs text-slate-500 dark:text-slate-400">
+              Klik kartu metode pengadaan atau tombol switch untuk mengaktifkan / menonaktifkan data paket, metrik KPI, dan visualisasi secara instan.
             </CardDescription>
           </div>
 
@@ -119,7 +148,7 @@ export function FeatureManagementPanel() {
               size="sm"
               onClick={resetToDefaults}
               className="text-xs h-8 gap-1.5 text-slate-500 hover:text-slate-900 dark:hover:text-white"
-              title="Kembalikan ke konfigurasi default"
+              title="Kembalikan ke konfigurasi default (Semua Aktif)"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Reset
@@ -138,55 +167,74 @@ export function FeatureManagementPanel() {
       </CardHeader>
 
       <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {FEATURE_CONFIGS.map((cfg) => {
-            const isEnabled = features[cfg.key];
+            const isEnabled = Boolean(features[cfg.key]);
             return (
               <div
                 key={cfg.key}
-                className={`relative flex flex-col justify-between p-4 rounded-xl border transition-all duration-200 ${
+                onClick={() => handleToggle(cfg.key, isEnabled, cfg.label)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    handleToggle(cfg.key, isEnabled, cfg.label);
+                  }
+                }}
+                className={`group relative flex flex-col justify-between p-4 rounded-xl border cursor-pointer select-none transition-all duration-200 hover:shadow-md ${
                   isEnabled
-                    ? "bg-white dark:bg-slate-900 border-blue-500/40 shadow-sm"
-                    : "bg-slate-50/70 dark:bg-slate-900/40 border-slate-200/80 dark:border-slate-800/80 opacity-75"
+                    ? "bg-white dark:bg-slate-900 border-blue-500/50 shadow-xs ring-1 ring-blue-500/10"
+                    : "bg-slate-100/80 dark:bg-slate-900/40 border-slate-200/90 dark:border-slate-800/80 opacity-60 hover:opacity-80"
                 }`}
               >
                 <div>
                   <div className="flex items-start justify-between gap-3 mb-2">
                     <div className="flex items-center gap-2.5">
-                      <div className="p-2 rounded-lg bg-slate-100 dark:bg-slate-800">
-                        {getModuleIcon(cfg.iconName)}
+                      <div
+                        className={`p-2 rounded-lg transition-colors ${
+                          isEnabled
+                            ? "bg-blue-50 dark:bg-blue-950/60"
+                            : "bg-slate-200/70 dark:bg-slate-800"
+                        }`}
+                      >
+                        {getMethodIcon(cfg.iconName)}
                       </div>
                       <div>
-                        <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
+                        <h4 className="text-sm font-bold text-slate-900 dark:text-slate-100 leading-tight group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
                           {cfg.label}
                         </h4>
-                        <span className="font-mono text-[10px] text-slate-400">
-                          ID: {cfg.key}
+                        <span className="text-[10px] text-slate-400 font-medium">
+                          {cfg.category}
                         </span>
                       </div>
                     </div>
 
-                    <Switch
-                      id={`switch-${cfg.key}`}
-                      checked={isEnabled}
-                      onCheckedChange={() => handleToggle(cfg.key, isEnabled, cfg.label)}
-                    />
+                    {/* Visual Switch Indicator (pointer-events-none ensures only one click fires reliably) */}
+                    <div className="pointer-events-none">
+                      <Switch
+                        id={`switch-${cfg.key}`}
+                        checked={isEnabled}
+                        tabIndex={-1}
+                        aria-label={`Aktifkan atau nonaktifkan metode ${cfg.label}`}
+                      />
+                    </div>
                   </div>
 
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2">
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-2 leading-relaxed">
                     {cfg.description}
                   </p>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                  <span className="text-[11px] font-medium uppercase tracking-wider text-slate-400">
-                    Status User
+                  <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
+                    Status Dashboard
                   </span>
                   <Badge
                     variant={isEnabled ? "success" : "secondary"}
                     className="font-medium text-[11px] px-2 py-0.5"
                   >
-                    {isEnabled ? "Ditampilkan (Aktif)" : "Disembunyikan (Off)"}
+                    {isEnabled ? "Aktif (ON)" : "Nonaktif (OFF)"}
                   </Badge>
                 </div>
               </div>
@@ -194,10 +242,10 @@ export function FeatureManagementPanel() {
           })}
         </div>
 
-        <div className="mt-4 p-3 rounded-lg bg-blue-50/80 dark:bg-blue-950/40 border border-blue-100 dark:border-blue-900/50 flex items-center gap-2 text-xs text-blue-700 dark:text-blue-300">
-          <Zap className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
+        <div className="mt-5 p-3.5 rounded-xl bg-blue-50/90 dark:bg-blue-950/40 border border-blue-200/70 dark:border-blue-900/50 flex items-center gap-3 text-xs text-blue-800 dark:text-blue-200">
+          <Sparkles className="w-4 h-4 shrink-0 text-blue-600 dark:text-blue-400" />
           <span>
-            <strong>Sinkronisasi Instan:</strong> Setiap perubahan tombol Switch otomatis tersimpan di storage global. Modul akan seketika hilang atau muncul di dashboard User tanpa perlu merestart server.
+            <strong>Sinkronisasi Real-Time INAPROC:</strong> Setiap perubahan tombol Switch otomatis mengupdate filter data paket, kartu metrik KPI, grafik tren bulanan, dan tabel transaksi di seluruh dashboard user secara seketika.
           </span>
         </div>
       </CardContent>

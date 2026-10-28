@@ -22,15 +22,15 @@ export default function AdminPage() {
             <div className="flex items-center gap-2">
               <Badge variant="default" className="gap-1.5 py-1 px-3 bg-blue-600 text-white border-0 font-semibold text-xs tracking-wider">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                ADMINISTRATOR CONSOLE
+                ADMINISTRATOR LKPP CONSOLE
               </Badge>
-              <span className="text-xs text-slate-400">| Mode Otorisasi Penuh</span>
+              <span className="text-xs text-slate-400">| Pusat Kendali INAPROC</span>
             </div>
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-slate-100 mt-2">
-              Enterprise Dashboard & Feature Control Center
+              INAPROC Procurement Control Center & Feature Toggle
             </h1>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-              Sebagai Administrator, Anda memiliki akses penuh ke seluruh analitik dan kendali langsung atas modul yang aktif pada akun User.
+              Sebagai Administrator LKPP, Anda memiliki kendali langsung atas 12 metode pengadaan. Modul yang diaktifkan/dinonaktifkan akan seketika menyelaraskan data pada akun User (PPK Satker).
             </p>
           </div>
 
@@ -45,25 +45,25 @@ export default function AdminPage() {
           <FeatureManagementPanel />
         </section>
 
-        {/* Live Admin Analytics Preview (Admin bypasses feature guard to always see full data) */}
+        {/* Live Admin Analytics Preview (Reflects live active toggles) */}
         <div className="pt-4 space-y-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-blue-500" />
               <h2 className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                Pratinjau Data Lengkap Perusahaan
+                Pratinjau Langsung Data Pengadaan
               </h2>
             </div>
             <span className="text-xs text-slate-400">
-              *Tampilan Admin menampilkan seluruh visualisasi secara komprehensif.
+              *Perubahan Switch di atas seketika mengubah analitik di bawah ini dan di dashboard User.
             </span>
           </div>
 
           {/* KPI Cards */}
           <KPIMetrics />
 
-          {/* Dynamic Charts (Line/Bar and Donut) */}
-          <DynamicChartGrid bypassGuards={true} />
+          {/* Dynamic Charts (Line/Area and Donut) */}
+          <DynamicChartGrid />
 
           {/* Full Transactions Table */}
           <TransactionsTable />
