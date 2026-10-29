@@ -10,12 +10,28 @@ import { DollarSign, ShoppingBag, Percent, TrendingUp, TrendingDown } from "luci
 
 interface KPIMetricsProps {
   bypassFilters?: boolean;
+  customStats?: {
+    totalAmount: number;
+    totalPackages: number;
+    avgAmount: number;
+    efficiencyRatio: string;
+  };
+  subtitleMethod?: string;
+  yearRange?: [number, number];
 }
 
-export function KPIMetrics({ bypassFilters = false }: KPIMetricsProps) {
-  const { filteredStats, activeMethods, totalCount, yearRange } = useFeatures();
+export function KPIMetrics({
+  bypassFilters = false,
+  customStats,
+  subtitleMethod,
+  yearRange: propYearRange,
+}: KPIMetricsProps) {
+  const { filteredStats, activeMethods, totalCount, yearRange: ctxYearRange } = useFeatures();
+
+  const yearRange = propYearRange ?? ctxYearRange;
 
   const stats = useMemo(() => {
+    if (customStats) return customStats;
     if (bypassFilters) {
       return calculateDynamicStats([
         "penunjukan_langsung",
@@ -33,7 +49,7 @@ export function KPIMetrics({ bypassFilters = false }: KPIMetricsProps) {
       ]);
     }
     return filteredStats;
-  }, [bypassFilters, filteredStats]);
+  }, [customStats, bypassFilters, filteredStats]);
 
   const cards = [
     {
@@ -53,7 +69,9 @@ export function KPIMetrics({ bypassFilters = false }: KPIMetricsProps) {
       rawAmount: `${stats.totalPackages} paket terverifikasi`,
       change: stats.totalPackages > 0 ? 8.4 : 0,
       trend: stats.totalPackages > 0 ? ("up" as const) : ("neutral" as const),
-      subtitle: `${activeMethods.length}/${totalCount} metode aktif`,
+      subtitle: subtitleMethod
+        ? `Khusus Metode ${subtitleMethod}`
+        : `${activeMethods.length}/${totalCount} metode aktif`,
       icon: <ShoppingBag className="w-5 h-5 text-emerald-500" />,
     },
     {

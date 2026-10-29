@@ -2,50 +2,53 @@
 
 import React, { useState, useMemo } from "react";
 import Image from "next/image";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { MOCK_TRANSACTIONS } from "@/lib/mock-data";
 import { useFeatures } from "@/context/feature-context";
 import { formatCurrency, formatShortCurrency } from "@/lib/utils";
-import { TransactionStatus } from "@/types/dashboard";
-import { FeatureKey } from "@/types/features";
+import { Transaction, TransactionStatus } from "@/types/dashboard";
 import {
   Search,
-  ChevronLeft,
-  ChevronRight,
-  Receipt,
   CheckCircle2,
   Clock,
   AlertCircle,
   XCircle,
+  ChevronLeft,
+  ChevronRight,
+  Receipt,
   FileText,
 } from "lucide-react";
 
 interface TransactionsTableProps {
   bypassFilters?: boolean;
+  customTransactions?: Transaction[];
+  targetMethodLabel?: string;
+  yearRange?: [number, number];
 }
 
-export function TransactionsTable({ bypassFilters = false }: TransactionsTableProps) {
-  const { yearRange, filteredTransactions: contextTransactions } = useFeatures();
+export function TransactionsTable({
+  bypassFilters = false,
+  customTransactions,
+  targetMethodLabel,
+  yearRange: propYearRange,
+}: TransactionsTableProps) {
+  const { yearRange: ctxYearRange, filteredTransactions: contextTransactions } = useFeatures();
+  const yearRange = propYearRange ?? ctxYearRange;
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedMethod] = useState<string>("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
-  // Uses globally filtered transactions from Feature Context
+  // Uses custom or globally filtered transactions from Feature Context
   const availableTransactions = useMemo(() => {
+    if (customTransactions) return customTransactions;
     if (bypassFilters) return MOCK_TRANSACTIONS;
     return contextTransactions;
-  }, [contextTransactions, bypassFilters]);
+  }, [customTransactions, contextTransactions, bypassFilters]);
 
   const filteredTransactions = useMemo(() => {
     return availableTransactions.filter((item) => {
@@ -99,32 +102,37 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
       case "failed":
         return (
           <Badge variant="destructive" className="gap-1 font-medium text-[11px] whitespace-nowrap">
-            <XCircle className="w-3 h-3 text-rose-600 dark:text-rose-400" />
+            <XCircle className="w-3 h-3 text-red-600 dark:text-red-400" />
             Tender Gagal
           </Badge>
         );
     }
   };
 
-  const getMethodBadgeClass = (method: FeatureKey) => {
+  const getMethodBadgeClass = (method: string) => {
     switch (method) {
+      case "tender":
+        return "bg-purple-50 text-purple-700 border-purple-200 dark:bg-purple-950/40 dark:text-purple-300 dark:border-purple-800";
       case "e_purchasing":
         return "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-300 dark:border-emerald-800";
-      case "tender":
-        return "bg-violet-50 text-violet-700 border-violet-200 dark:bg-violet-950/40 dark:text-violet-300 dark:border-violet-800";
-      case "swakelola":
-        return "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800";
-      case "pengadaan_langsung":
-        return "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800";
-      case "tender_cepat":
-        return "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-300 dark:border-cyan-800";
       case "penunjukan_langsung":
         return "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800";
+      case "pengadaan_langsung":
+        return "bg-indigo-50 text-indigo-700 border-indigo-200 dark:bg-indigo-950/40 dark:text-indigo-300 dark:border-indigo-800";
+      case "swakelola":
+        return "bg-teal-50 text-teal-700 border-teal-200 dark:bg-teal-950/40 dark:text-teal-300 dark:border-teal-800";
+      case "sayembara":
+        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
+      case "kontes":
+        return "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/40 dark:text-orange-300 dark:border-orange-800";
+      case "tender_cepat":
+        return "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-300 dark:border-cyan-800";
+      case "tender_internasional":
+        return "bg-sky-50 text-sky-700 border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800";
       case "pengadaan_darurat":
         return "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800";
-      case "sayembara":
-      case "kontes":
-        return "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800";
+      case "seleksi":
+        return "bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200 dark:bg-fuchsia-950/40 dark:text-fuchsia-300 dark:border-fuchsia-800";
       default:
         return "bg-slate-100 text-slate-700 border-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:border-slate-700";
     }
@@ -140,10 +148,13 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
             </div>
             <div>
               <CardTitle className="text-base font-semibold text-slate-900 dark:text-slate-100">
-                Daftar Paket Pengadaan Barang &amp; Jasa (INAPROC)
+                {targetMethodLabel
+                  ? `Daftar Paket Pengadaan — ${targetMethodLabel}`
+                  : "Daftar Paket Pengadaan Barang & Jasa (INAPROC)"}
               </CardTitle>
               <CardDescription className="text-xs text-slate-500">
-                Tahun {yearRange[0]}—{yearRange[1]} ({filteredTransactions.length} dari {MOCK_TRANSACTIONS.length} paket cocok filter)
+                Tahun {yearRange[0]}—{yearRange[1]} ({filteredTransactions.length} dari{" "}
+                {availableTransactions.length} paket cocok filter)
               </CardDescription>
             </div>
           </div>
@@ -175,6 +186,7 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
               <option value="completed">Selesai Kontrak</option>
               <option value="processing">Masa Sanggah</option>
               <option value="pending">Penetapan</option>
+              <option value="failed">Tender Gagal</option>
             </select>
           </div>
         </div>
@@ -215,7 +227,10 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
                           <span className="font-mono text-[11px] font-bold text-blue-600 dark:text-blue-400 block">
                             {item.invoiceNumber}
                           </span>
-                          <span className="text-xs font-medium text-slate-900 dark:text-slate-100 truncate block" title={item.customerName}>
+                          <span
+                            className="text-xs font-medium text-slate-900 dark:text-slate-100 truncate block"
+                            title={item.customerName}
+                          >
                             {item.customerName}
                           </span>
                         </div>
@@ -223,7 +238,10 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
                     </td>
 
                     <td className="py-3.5 px-6 max-w-[280px]">
-                      <div className="font-medium text-slate-900 dark:text-slate-100 line-clamp-2" title={item.product}>
+                      <div
+                        className="font-medium text-slate-900 dark:text-slate-100 line-clamp-2"
+                        title={item.product}
+                      >
                         {item.product}
                       </div>
                       <span className="text-[11px] text-slate-400 block mt-0.5">
@@ -254,7 +272,10 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
                       {renderStatusBadge(item.status)}
                     </td>
 
-                    <td className="py-3.5 px-6 text-[11px] text-slate-500 dark:text-slate-400 max-w-[160px] truncate" title={item.paymentMethod}>
+                    <td
+                      className="py-3.5 px-6 text-[11px] text-slate-500 dark:text-slate-400 max-w-[160px] truncate"
+                      title={item.paymentMethod}
+                    >
                       {item.paymentMethod}
                     </td>
                   </tr>
@@ -303,7 +324,7 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
               size="sm"
               disabled={currentPage <= 1}
               onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
-              className="h-8 px-2.5 text-xs"
+              className="h-8 px-2.5 text-xs cursor-pointer"
             >
               <ChevronLeft className="w-4 h-4 mr-1" />
               Sebelumnya
@@ -316,7 +337,7 @@ export function TransactionsTable({ bypassFilters = false }: TransactionsTablePr
               size="sm"
               disabled={currentPage >= totalPages}
               onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
-              className="h-8 px-2.5 text-xs"
+              className="h-8 px-2.5 text-xs cursor-pointer"
             >
               Selanjutnya
               <ChevronRight className="w-4 h-4 ml-1" />

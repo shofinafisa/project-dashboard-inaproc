@@ -14,15 +14,39 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { MOCK_SALES_TREND_BASE } from "@/lib/mock-data";
 import { useFeatures } from "@/context/feature-context";
 import { formatCurrency, formatShortCurrency, formatNumber } from "@/lib/utils";
+import { Transaction } from "@/types/dashboard";
 import { TrendingUp } from "lucide-react";
 
 interface SalesTrendChartProps {
   bypassFilters?: boolean;
+  customTransactions?: Transaction[];
+  customStats?: {
+    totalAmount: number;
+    totalPackages: number;
+    avgAmount: number;
+    efficiencyRatio: string;
+  };
+  yearRange?: [number, number];
+  targetMethodLabel?: string;
 }
 
-export function SalesTrendChart({ bypassFilters = false }: SalesTrendChartProps) {
+export function SalesTrendChart({
+  bypassFilters = false,
+  customTransactions,
+  customStats,
+  yearRange: propYearRange,
+  targetMethodLabel,
+}: SalesTrendChartProps) {
   const [metric, setMetric] = useState<"revenue" | "orders">("revenue");
-  const { yearRange, filteredStats, filteredTransactions } = useFeatures();
+  const {
+    yearRange: ctxYearRange,
+    filteredStats: ctxStats,
+    filteredTransactions: ctxTransactions,
+  } = useFeatures();
+
+  const yearRange = propYearRange ?? ctxYearRange;
+  const filteredStats = customStats ?? ctxStats;
+  const filteredTransactions = customTransactions ?? ctxTransactions;
 
   // Scale monthly data dynamically based on filtered transactions
   const chartData = useMemo(() => {
@@ -66,8 +90,12 @@ export function SalesTrendChart({ bypassFilters = false }: SalesTrendChartProps)
             </div>
             <CardDescription className="mt-1 text-xs text-slate-500">
               {metric === "revenue"
-                ? `Akumulasi Realisasi Tahun ${yearRange[0]}—${yearRange[1]}: ${formatShortCurrency(totalRevenue)}`
-                : `Total Volume Tahun ${yearRange[0]}—${yearRange[1]}: ${formatNumber(totalOrders)} paket`}
+                ? `Akumulasi Realisasi Tahun ${yearRange[0]}—${yearRange[1]}${
+                    targetMethodLabel ? ` (${targetMethodLabel})` : ""
+                  }: ${formatShortCurrency(totalRevenue)}`
+                : `Total Volume Tahun ${yearRange[0]}—${yearRange[1]}${
+                    targetMethodLabel ? ` (${targetMethodLabel})` : ""
+                  }: ${formatNumber(totalOrders)} paket`}
             </CardDescription>
           </div>
 

@@ -2,27 +2,33 @@
 
 import React, { useState, useEffect } from "react";
 import { CascadingFilterState } from "@/lib/cascading-filter-data";
-import { useFeatures } from "@/context/feature-context";
 import { formatShortCurrency, formatNumber } from "@/lib/utils";
+import { useFeatures } from "@/context/feature-context";
 import { useToast } from "@/components/ui/toast";
 import {
-  X,
+  Sparkles,
   Download,
   Printer,
-  Sparkles,
+  X,
+  FileCheck,
+  ChevronDown,
+  ChevronUp,
   Loader2,
   CheckCircle2,
   Calendar,
   Layers,
-  FileCheck,
-  ChevronDown,
-  ChevronUp,
 } from "lucide-react";
 
 interface AIInfographicModalProps {
   isOpen: boolean;
   onClose: () => void;
   filterState: CascadingFilterState;
+  targetMethodLabel?: string;
+  customStats?: {
+    totalAmount: number;
+    totalPackages: number;
+    efficiencyRatio: string;
+  };
 }
 
 interface InfographicResponse {
@@ -48,9 +54,12 @@ export function AIInfographicModal({
   isOpen,
   onClose,
   filterState,
+  targetMethodLabel,
+  customStats,
 }: AIInfographicModalProps) {
   const { toast } = useToast();
-  const { filteredStats } = useFeatures();
+  const { filteredStats: ctxStats } = useFeatures();
+  const stats = customStats ?? ctxStats;
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<InfographicResponse | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -82,10 +91,11 @@ export function AIInfographicModal({
           instansi: filterState.instansi,
           eselon: filterState.eselon,
           satker: filterState.satker,
+          targetMethod: targetMethodLabel,
           metrics: {
-            totalRealisasi: formatShortCurrency(filteredStats.totalAmount),
-            totalPaket: `${formatNumber(filteredStats.totalPackages)} Paket`,
-            efisiensi: `Hemat ${filteredStats.efficiencyRatio}%`,
+            totalRealisasi: formatShortCurrency(stats.totalAmount),
+            totalPaket: `${formatNumber(stats.totalPackages)} Paket`,
+            efisiensi: `Hemat ${stats.efficiencyRatio}%`,
           },
         };
 
@@ -102,7 +112,9 @@ export function AIInfographicModal({
           setData(json);
           toast({
             title: "Infografis AI Siap",
-            description: "Poster visual pengadaan telah berhasil dirender.",
+            description: `Poster visual pengadaan ${
+              targetMethodLabel ? `(${targetMethodLabel}) ` : ""
+            }telah berhasil dirender.`,
             type: "success",
           });
         }
@@ -128,7 +140,7 @@ export function AIInfographicModal({
       clearTimeout(stepTimer1);
       clearTimeout(stepTimer2);
     };
-  }, [isOpen, filterState, filteredStats, toast]);
+  }, [isOpen, filterState, stats, targetMethodLabel, toast]);
 
   // Handle ESC key to close
   useEffect(() => {
@@ -152,7 +164,10 @@ export function AIInfographicModal({
     )
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "_");
-    link.download = `Infografis_INAPROC_${cleanInstansi}_${filterState.yearRange[0]}_${filterState.yearRange[1]}.svg`;
+    const cleanMethod = targetMethodLabel
+      ? `_${targetMethodLabel.toLowerCase().replace(/[^a-z0-9]/g, "_")}`
+      : "";
+    link.download = `Infografis_INAPROC${cleanMethod}_${cleanInstansi}_${filterState.yearRange[0]}_${filterState.yearRange[1]}.svg`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -180,6 +195,11 @@ export function AIInfographicModal({
             <div>
               <h2 className="text-sm font-bold text-white flex items-center gap-2">
                 Infografis Pengadaan AI (INAPROC)
+                {targetMethodLabel && (
+                  <span className="text-xs px-2 py-0.5 rounded-md bg-blue-500/20 text-blue-300 border border-blue-500/30 font-semibold">
+                    {targetMethodLabel}
+                  </span>
+                )}
               </h2>
             </div>
           </div>
@@ -202,6 +222,11 @@ export function AIInfographicModal({
               <Layers className="w-3.5 h-3.5 text-blue-400" />
               Parameter:
             </span>
+            {targetMethodLabel && (
+              <span className="px-2 py-0.5 rounded-md bg-blue-900/40 text-blue-300 border border-blue-700/60 font-semibold">
+                Metode: {targetMethodLabel}
+              </span>
+            )}
             <span className="px-2 py-0.5 rounded-md bg-slate-800 text-slate-200 border border-slate-700/60 flex items-center gap-1">
               <Calendar className="w-3 h-3 text-blue-400" />
               Tahun: <strong>{filterState.yearRange[0]}—{filterState.yearRange[1]}</strong>
@@ -282,7 +307,7 @@ export function AIInfographicModal({
                 <button
                   type="button"
                   onClick={() => setShowPrompt((p) => !p)}
-                  className="w-full flex items-center justify-between p-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors text-left"
+                  className="w-full flex items-center justify-between p-2.5 text-slate-400 hover:text-slate-200 hover:bg-slate-900/60 transition-colors text-left cursor-pointer"
                 >
                   <span className="flex items-center gap-1.5 font-medium">
                     <FileCheck className="w-3.5 h-3.5 text-indigo-400" />

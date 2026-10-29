@@ -9,6 +9,7 @@ import {
 import { MOCK_TRANSACTIONS } from "@/lib/mock-data";
 import { useToast } from "@/components/ui/toast";
 import { useFeatures } from "@/context/feature-context";
+import { Transaction } from "@/types/dashboard";
 import {
   FileSpreadsheet,
   FileText,
@@ -19,17 +20,28 @@ import {
 
 interface ExportControlsProps {
   onGenerateAI?: () => void;
+  customTransactions?: Transaction[];
+  filenamePrefix?: string;
 }
 
-export function ExportControls({ onGenerateAI }: ExportControlsProps) {
+export function ExportControls({
+  onGenerateAI,
+  customTransactions,
+  filenamePrefix = "laporan_pengadaan_inaproc",
+}: ExportControlsProps) {
   const { toast } = useToast();
-  const { activeCount } = useFeatures();
+  const { activeCount, filteredTransactions: ctxTransactions } = useFeatures();
   const [isExportingExcel, setIsExportingExcel] = useState(false);
   const [isExportingCSV, setIsExportingCSV] = useState(false);
   const [isExportingPDF, setIsExportingPDF] = useState(false);
 
-  // Jika semua metode dimatikan Admin (activeCount === 0), tombol ekspor disembunyikan
-  if (activeCount === 0) {
+  // Data to export
+  const exportData =
+    customTransactions ??
+    (ctxTransactions.length > 0 ? ctxTransactions : MOCK_TRANSACTIONS);
+
+  // Jika semua metode dimatikan Admin (activeCount === 0) dan tidak ada custom transactions, sembunyikan
+  if (activeCount === 0 && !customTransactions) {
     return null;
   }
 
@@ -37,12 +49,12 @@ export function ExportControls({ onGenerateAI }: ExportControlsProps) {
     setIsExportingExcel(true);
     try {
       exportTransactionsToExcel(
-        MOCK_TRANSACTIONS,
-        `laporan_pengadaan_inaproc_${new Date().toISOString().slice(0, 10)}.xlsx`
+        exportData,
+        `${filenamePrefix}_${new Date().toISOString().slice(0, 10)}.xlsx`
       );
       toast({
         title: "Ekspor Excel Berhasil (.xlsx)",
-        description: `${MOCK_TRANSACTIONS.length} baris paket pengadaan berhasil diekspor.`,
+        description: `${exportData.length} baris paket pengadaan berhasil diekspor.`,
         type: "success",
       });
     } catch {
@@ -60,12 +72,12 @@ export function ExportControls({ onGenerateAI }: ExportControlsProps) {
     setIsExportingCSV(true);
     try {
       exportTransactionsToCSV(
-        MOCK_TRANSACTIONS,
-        `laporan_pengadaan_inaproc_${new Date().toISOString().slice(0, 10)}.csv`
+        exportData,
+        `${filenamePrefix}_${new Date().toISOString().slice(0, 10)}.csv`
       );
       toast({
         title: "Ekspor CSV Berhasil (.csv)",
-        description: `${MOCK_TRANSACTIONS.length} baris data CSV berhasil diunduh.`,
+        description: `${exportData.length} baris data CSV berhasil diunduh.`,
         type: "success",
       });
     } catch {

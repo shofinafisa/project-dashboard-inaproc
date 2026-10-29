@@ -611,3 +611,47 @@ export function calculateDynamicStats(
     efficiencyRatio,
   };
 }
+
+
+export const METHOD_SLUGS: Record<string, FeatureKey> = {
+  "penunjukan-langsung": "penunjukan_langsung",
+  "pengadaan-langsung": "pengadaan_langsung",
+  "e-purchasing": "e_purchasing",
+  "swakelola": "swakelola",
+  "sayembara": "sayembara",
+  "kontes": "kontes",
+  "tender": "tender",
+  "tender-cepat": "tender_cepat",
+  "tender-internasional": "tender_internasional",
+  "pengadaan-darurat": "pengadaan_darurat",
+  "seleksi": "seleksi",
+  "dikecualikan": "dikecualikan",
+  "penunjukan_langsung": "penunjukan_langsung",
+  "pengadaan_langsung": "pengadaan_langsung",
+  "e_purchasing": "e_purchasing",
+  "tender_cepat": "tender_cepat",
+  "tender_internasional": "tender_internasional",
+  "pengadaan_darurat": "pengadaan_darurat",
+};
+
+export const FEATURE_TO_SLUG: Record<FeatureKey, string> = {
+  penunjukan_langsung: "penunjukan-langsung",
+  pengadaan_langsung: "pengadaan-langsung",
+  e_purchasing: "e-purchasing",
+  swakelola: "swakelola",
+  sayembara: "sayembara",
+  kontes: "kontes",
+  tender: "tender",
+  tender_cepat: "tender-cepat",
+  tender_internasional: "tender-internasional",
+  pengadaan_darurat: "pengadaan-darurat",
+  seleksi: "seleksi",
+  dikecualikan: "dikecualikan",
+};
+
+export function getMethodConfigBySlug(slug: string): FeatureMetadata | undefined {
+  const normalized = slug.trim().toLowerCase();
+  const key = METHOD_SLUGS[normalized];
+  if (!key) return undefined;
+  return FEATURE_CONFIGS.find((cfg) => cfg.key === key);
+}

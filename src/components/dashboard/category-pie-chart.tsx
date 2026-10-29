@@ -6,21 +6,64 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { MOCK_CATEGORIES_BASE } from "@/lib/mock-data";
 import { useFeatures } from "@/context/feature-context";
 import { formatCurrency, formatShortCurrency } from "@/lib/utils";
+import { Transaction } from "@/types/dashboard";
 import { PieChart as PieIcon } from "lucide-react";
 
 interface CategoryPieChartProps {
   bypassFilters?: boolean;
+  customTransactions?: Transaction[];
+  isSingleMethod?: boolean;
+  targetMethodLabel?: string;
 }
 
-export function CategoryPieChart({ bypassFilters = false }: CategoryPieChartProps) {
-  const { filteredTransactions } = useFeatures();
+const PROCUREMENT_CATEGORY_COLORS: Record<string, string> = {
+  "Pekerjaan Konstruksi": "#3b82f6",
+  "Pengadaan Barang": "#10b981",
+  "Jasa Konsultansi": "#8b5cf6",
+  "Jasa Lainnya": "#f59e0b",
+  "Pengadaan Terpadu": "#ec4899",
+  "Sewa & Pemeliharaan": "#06b6d4",
+};
 
-  // Aggregate method percentages dynamically from the active filtered transactions
+export function CategoryPieChart({
+  bypassFilters = false,
+  customTransactions,
+  isSingleMethod = false,
+  targetMethodLabel,
+}: CategoryPieChartProps) {
+  const { filteredTransactions: ctxTransactions } = useFeatures();
+  const filteredTransactions = customTransactions ?? ctxTransactions;
+
+  // Aggregate method or procurement category percentages dynamically
   const filteredCategories = useMemo(() => {
     if (bypassFilters) return MOCK_CATEGORIES_BASE;
-
     if (filteredTransactions.length === 0) return [];
 
+    if (isSingleMethod) {
+      // Group by procurement item category (e.g., Pekerjaan Konstruksi, Pengadaan Barang, dll.)
+      const catMap: Record<string, { value: number; orders: number }> = {};
+      filteredTransactions.forEach((tx) => {
+        const catName = tx.category || "Lainnya";
+        if (!catMap[catName]) {
+          catMap[catName] = { value: 0, orders: 0 };
+        }
+        catMap[catName].value += tx.amount;
+        catMap[catName].orders += 1;
+      });
+
+      const totalVal = Object.values(catMap).reduce((acc, curr) => acc + curr.value, 0);
+
+      return Object.entries(catMap).map(([catName, data]) => ({
+        key: catName,
+        name: catName,
+        value: data.value,
+        orders: data.orders,
+        color: PROCUREMENT_CATEGORY_COLORS[catName] || "#64748b",
+        percentage: totalVal > 0 ? Math.round((data.value / totalVal) * 100) : 0,
+      }));
+    }
+
+    // Default: Group by procurementMethod
     const methodMap: Record<string, { value: number; orders: number }> = {};
     filteredTransactions.forEach((tx) => {
       if (!methodMap[tx.procurementMethod]) {
@@ -38,7 +81,7 @@ export function CategoryPieChart({ bypassFilters = false }: CategoryPieChartProp
       orders: methodMap[cat.key].orders,
       percentage: totalVal > 0 ? Math.round((methodMap[cat.key].value / totalVal) * 100) : 0,
     }));
-  }, [filteredTransactions, bypassFilters]);
+  }, [filteredTransactions, bypassFilters, isSingleMethod]);
 
   const totalMarketValue = useMemo(
     () => filteredCategories.reduce((acc, curr) => acc + curr.value, 0),
@@ -54,11 +97,15 @@ export function CategoryPieChart({ bypassFilters = false }: CategoryPieChartProp
           </div>
           <div>
             <CardTitle className="text-base font-semibold text-slate-900 dark:text-slate-100">
-              Distribusi Metode Pengadaan Aktif
+              {isSingleMethod
+                ? `Distribusi Kategori (${targetMethodLabel || "Metode"})`
+                : "Distribusi Metode Pengadaan Aktif"}
             </CardTitle>
             <CardDescription className="mt-0.5 text-xs text-slate-500">
               {filteredCategories.length > 0
-                ? `Total Realisasi: ${formatShortCurrency(totalMarketValue)} (${filteredCategories.length} metode)`
+                ? `Total Realisasi: ${formatShortCurrency(totalMarketValue)} (${filteredCategories.length} ${
+                    isSingleMethod ? "kategori" : "metode"
+                  })`
                 : "Tidak ada data pada filter ini"}
             </CardDescription>
           </div>
@@ -101,7 +148,7 @@ export function CategoryPieChart({ bypassFilters = false }: CategoryPieChartProp
             </ResponsiveContainer>
           ) : (
             <div className="h-full flex items-center justify-center text-xs text-slate-400">
-              Tidak ada data distribusi metode
+              Tidak ada data distribusi
             </div>
           )}
         </div>
