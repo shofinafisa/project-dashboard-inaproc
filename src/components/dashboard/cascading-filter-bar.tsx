@@ -3,12 +3,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
   CascadingFilterState,
-  AVAILABLE_YEARS,
   JENIS_INSTANSI_LIST,
   getInstansiOptions,
   getEselonOptions,
   getSatkerOptions,
 } from "@/lib/cascading-filter-data";
+import { DateFilter } from "@/components/dashboard/date-filter";
 import { RotateCcw, ChevronDown, Calendar, Layers, X } from "lucide-react";
 
 interface MultiSelectDropdownProps {
@@ -97,14 +97,14 @@ function MultiSelectDropdown({
             <button
               type="button"
               onClick={handleSelectAll}
-              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium"
+              className="text-[11px] text-blue-600 dark:text-blue-400 hover:underline font-medium cursor-pointer"
             >
               Pilih Semua
             </button>
             <button
               type="button"
               onClick={handleClear}
-              className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300"
+              className="text-[11px] text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 cursor-pointer"
             >
               Reset
             </button>
@@ -158,68 +158,37 @@ export function CascadingFilterBar({
   const eselonOptions = getEselonOptions(filterState.instansi);
   const satkerOptions = getSatkerOptions(filterState.eselon);
 
-  // Year range change handler
-  const handleStartYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const start = parseInt(e.target.value, 10);
-    const end = Math.max(start, filterState.yearRange[1]);
-    onChange({
-      ...filterState,
-      yearRange: [start, end],
-    });
-  };
-
-  const handleEndYearChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const end = parseInt(e.target.value, 10);
-    const start = Math.min(end, filterState.yearRange[0]);
-    onChange({
-      ...filterState,
-      yearRange: [start, end],
-    });
-  };
+  const isYearFiltered =
+    filterState.yearRange[0] !== 2020 || filterState.yearRange[1] !== 2026;
 
   const hasActiveFilters =
     filterState.jenisInstansi.length > 0 ||
     filterState.instansi.length > 0 ||
     filterState.eselon.length > 0 ||
     filterState.satker.length > 0 ||
-    filterState.yearRange[0] !== 2020 ||
-    filterState.yearRange[1] !== 2026;
+    isYearFiltered;
 
   return (
     <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded-2xl p-4 shadow-xs space-y-3 transition-all">
       {/* Filter Row */}
       <div className="flex flex-wrap lg:flex-nowrap items-end gap-2.5">
-        {/* Rentang Tahun (Dari Tahun s/d Tahun) */}
-        <div className="min-w-[200px] flex-1">
+        {/* Dual Range Slider: Rentang Tahun */}
+        <div className="relative flex-1 min-w-[170px] sm:min-w-[190px]">
           <label className="text-[11px] font-medium text-slate-500 dark:text-slate-400 block mb-1 flex items-center gap-1">
             <Calendar className="w-3 h-3 text-blue-500" />
             Rentang Tahun
           </label>
-          <div className="flex items-center gap-1.5 h-9 px-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs">
-            <select
-              value={filterState.yearRange[0]}
-              onChange={handleStartYearChange}
-              className="bg-transparent text-slate-800 dark:text-slate-100 font-medium focus:outline-none cursor-pointer"
-            >
-              {AVAILABLE_YEARS.map((y) => (
-                <option key={`start-${y}`} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-            <span className="text-slate-400 text-[11px]">s/d</span>
-            <select
-              value={filterState.yearRange[1]}
-              onChange={handleEndYearChange}
-              className="bg-transparent text-slate-800 dark:text-slate-100 font-medium focus:outline-none cursor-pointer"
-            >
-              {AVAILABLE_YEARS.map((y) => (
-                <option key={`end-${y}`} value={y}>
-                  {y}
-                </option>
-              ))}
-            </select>
-          </div>
+          <DateFilter
+            value={filterState.yearRange}
+            onChange={(newRange) =>
+              onChange({
+                ...filterState,
+                yearRange: newRange,
+              })
+            }
+            align="left"
+            buttonClassName="w-full justify-between"
+          />
         </div>
 
         {/* Multiple Choice: Jenis Instansi */}
@@ -304,9 +273,23 @@ export function CascadingFilterBar({
             <Layers className="w-3 h-3 text-blue-500" />
             Filter Aktif:
           </span>
-          <span className="px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium">
-            Tahun {filterState.yearRange[0]}—{filterState.yearRange[1]}
-          </span>
+          {isYearFiltered && (
+            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 dark:bg-blue-950/40 text-blue-700 dark:text-blue-300 font-medium">
+              Tahun{" "}
+              {filterState.yearRange[0] === filterState.yearRange[1]
+                ? filterState.yearRange[0]
+                : `${filterState.yearRange[0]}—${filterState.yearRange[1]}`}
+              <X
+                className="w-2.5 h-2.5 text-blue-500 hover:text-rose-500 cursor-pointer"
+                onClick={() =>
+                  onChange({
+                    ...filterState,
+                    yearRange: [2020, 2026],
+                  })
+                }
+              />
+            </span>
+          )}
           {filterState.jenisInstansi.map((j) => (
             <span
               key={j}

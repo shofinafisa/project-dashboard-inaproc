@@ -36,6 +36,10 @@ Setiap kali metode pengadaan diaktifkan atau dinonaktifkan:
 - **Quick Method Pills pada Dashboard User:** Menampilkan status metode aktif dengan chip interaktif.
 - **Empty State:** Memberikan notifikasi informatif dan tombol pemulihan jika seluruh metode dinonaktifkan.
 
+### 4. Cascading Filter Bar & Dual Range Slider
+- **Dual Range Slider Rentang Tahun:** Memilih rentang tahun pengadaan (2020 — 2026) secara interaktif dengan visual slider ganda (*dual range slider*), *clickable tick marks*, dan pilihan cepat (*presets*).
+- **Hierarki Filter Cascading:** Filter bertingkat berdasarkan Jenis Instansi, Instansi, Eselon, dan Satker dengan *multiple choice* yang terintegrasi secara real-time ke seluruh visualisasi data.
+
 ---
 
 ## 🔑 Kredensial Demo

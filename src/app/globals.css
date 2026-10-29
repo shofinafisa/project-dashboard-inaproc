@@ -113,3 +113,13 @@ input[type="range"].dual-slider-thumb::-moz-range-thumb:active {
   border-color: #1d4ed8;
   box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.2);
 }
+
+/* Ensure native track is completely transparent */
+input[type="range"].dual-slider-thumb::-webkit-slider-runnable-track {
+  background: transparent;
+  border: none;
+}
+input[type="range"].dual-slider-thumb::-moz-range-track {
+  background: transparent;
+  border: none;
+}
