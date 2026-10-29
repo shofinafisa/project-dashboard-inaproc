@@ -240,7 +240,7 @@ export function MethodDashboardView({ methodSlug }: MethodDashboardViewProps) {
             </div>
 
             {/* Action Tools: Export controls & Infografis AI */}
-            <div className="flex flex-wrap items-center gap-2 shrink-0">
+            <div className="flex items-center gap-2 shrink-0">
               <ExportControls
                 onGenerateAI={() => setIsAIModalOpen(true)}
                 customTransactions={filteredTransactions}

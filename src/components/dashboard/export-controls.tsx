@@ -105,15 +105,15 @@ export function ExportControls({
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2">
+    <div className="flex items-center gap-2 flex-nowrap shrink-0">
       {/* 3 Format Export Buttons Group */}
-      <div className="inline-flex items-center p-1 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 gap-1">
+      <div className="inline-flex items-center p-1 rounded-xl bg-slate-100/80 dark:bg-slate-800/80 border border-slate-200/80 dark:border-slate-700/80 gap-1 shrink-0">
         {/* Excel Button */}
         <button
           type="button"
           onClick={handleExcel}
           disabled={isExportingExcel}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 border border-emerald-500/20 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 hover:text-emerald-700 border border-emerald-500/20 shadow-xs transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap"
           title="Unduh format Microsoft Excel Spreadsheet (.xlsx)"
         >
           {isExportingExcel ? (
@@ -121,7 +121,7 @@ export function ExportControls({
           ) : (
             <FileSpreadsheet className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
           )}
-          <span>Excel (.xlsx)</span>
+          <span>Excel</span>
         </button>
 
         {/* CSV Button */}
@@ -129,7 +129,7 @@ export function ExportControls({
           type="button"
           onClick={handleCSV}
           disabled={isExportingCSV}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 shadow-xs transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap"
           title="Unduh format Comma-Separated Values (.csv)"
         >
           {isExportingCSV ? (
@@ -137,7 +137,7 @@ export function ExportControls({
           ) : (
             <FileText className="w-3.5 h-3.5 text-slate-600 dark:text-slate-400" />
           )}
-          <span>CSV (.csv)</span>
+          <span>CSV</span>
         </button>
 
         {/* PDF Button */}
@@ -145,11 +145,11 @@ export function ExportControls({
           type="button"
           onClick={handlePDF}
           disabled={isExportingPDF}
-          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 border border-rose-500/20 shadow-xs transition-all cursor-pointer disabled:opacity-50"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-white dark:bg-slate-800 text-rose-600 dark:text-rose-400 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 border border-rose-500/20 shadow-xs transition-all cursor-pointer disabled:opacity-50 whitespace-nowrap"
           title="Cetak atau Unduh Dokumen PDF (.pdf)"
         >
           <FileType className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
-          <span>PDF (.pdf)</span>
+          <span>PDF</span>
         </button>
       </div>
 
@@ -158,7 +158,7 @@ export function ExportControls({
         <button
           type="button"
           onClick={onGenerateAI}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.98] transition-all cursor-pointer"
+          className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-lg shadow-indigo-600/25 active:scale-[0.98] transition-all cursor-pointer whitespace-nowrap shrink-0"
         >
           <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-pulse" />
           <span>Generate Infografis AI</span>
